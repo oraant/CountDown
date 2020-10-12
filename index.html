@@ -1,0 +1,209 @@
+<html>
+
+
+	<head>
+		<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2020%2020'%3E%3Ctext%20x='0'%20y='14'%20style='filter:%20invert(100%);'%3E⏰%3C/text%3E%3C/svg%3E" type="image/svg+xml" />
+		<script>
+		
+			// 提前声明的变量与方法等
+		
+			var maxtime = 60*10; // 10分钟
+			var counting = false; // 状态机
+			var residue = 0; // 计时用的读秒器
+			
+			// 声音播放器
+			
+			var sound = "";
+			var play_counter = 0;
+			var max_counter = 0;
+
+			function beep(){
+				sound.play();
+				play_counter++;
+				if (play_counter == max_counter) clearInterval(beeper);
+			}
+
+			function player(gap, total, number, tune) { // 次数、间隔snd.play();
+				play_counter = 0;
+				max_counter = total;
+				sound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(number).join(tune));
+				beeper = setInterval("beep()", gap);
+			}
+			
+			// 最后的倒计时
+			
+			function sleep(ms) {
+				return new Promise(resolve => setTimeout(resolve, ms))
+			}
+			
+			async function alarm(max){
+				sound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(100).join(23));
+				for(i=0; i<10; i++){  sound.play(); await sleep(1000) }
+				for(i=0; i<10; i++){  sound.play(); await sleep(500) }
+				for(i=0; i<10; i++){  sound.play(); await sleep(200) }
+				for(i=0; i<10; i++){  sound.play(); await sleep(100) }
+				for(i=0; i<20; i++){  sound.play(); await sleep(50) }
+			}
+			
+			
+			// 计时器主体
+			
+			function CountDown(){
+			
+				if (residue >= 0) {
+				
+					// 获取分钟秒数，并补零
+					minutes = Math.floor(residue / 60); minutes = minutes<10 ? '0'+minutes : minutes;
+					seconds = Math.floor(residue % 60); seconds = seconds<10 ? '0'+seconds : seconds;
+					
+					// 将剩余时间显示在页面上
+					msg = minutes + ':' + seconds;
+					document.getElementById('time').innerHTML = msg;
+					
+					// 关键点的响应
+					if (residue == 600) player( 100, 10,  100, 123);
+					if (residue == 300) player( 100,  5,  100, 123);
+					if (residue == 120) player( 100,  2,  100, 123);
+					                                     
+					if (residue ==  60) player( 100, 10,  100,  23);
+					if (residue ==  30) player( 100,  5,  100,  23);
+					if (residue ==  20) alarm();
+					                                     
+					// if (residue ==  10) player( 500,  4,   50,  23);
+					// if (residue ==  08) player( 400,  5,   50,  23);
+					// if (residue ==  06) player( 200, 10,   50,  23);
+					// if (residue ==  04) player( 100, 20,   50,  23);
+					// if (residue ==  02) player(  50, 40,   50,  23);
+					                                     
+					if (residue ==  01) player( 100,  1, 1000,  29);
+					
+					// 每秒降低一下
+					--residue;
+				} else {
+					clearInterval(timer);
+					
+					let counter = document.getElementById('count').innerHTML;
+					document.getElementById('count').innerHTML = parseInt(counter)+1;
+					
+					StartCircle(); // 重新开始计时，除非按下结束，否则会一直重启循环
+				}
+			};
+			
+			// 控制部分
+			
+			function StartCircle(){
+				residue = maxtime;
+				timer = setInterval("CountDown()", 1000);
+				counting = true;
+			}
+			function PauseCircle(){
+				if(counting){
+					clearInterval(timer);
+					counting = false;
+				}else{
+					timer = setInterval("CountDown()", 1000);
+					counting = true;
+				}
+			}
+			function ClearCircle(){
+				document.getElementById('count').innerHTML = "0";
+				document.getElementById('time').innerHTML = "10:00";
+				clearInterval(timer);
+				counting = false;
+			}
+			
+		</script>
+	</head>
+	
+	
+	<body style="padding:100px">
+	
+		<button onclick="StartCircle()">开始计时</button> →
+		<button onclick="PauseCircle()">暂停/继续</button> →
+		<button onclick="ClearCircle()">结束清空</button>
+		
+		<span>（计时单位为10分钟）</span>
+		
+		<p style="font-size:70px"> <span id="count">0</span> | <span id="time">10:00</span> </p>
+		
+		
+		
+		
+		
+		
+		<div style="display:none">
+		
+			<hr style="margin-top:500px;">		
+			
+			<button onclick="new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'+Array(1000).join(123)).play()">Beep</button><br>
+			
+			<br>
+			
+			<button onclick="alarm(100)">Alarm</button><br>
+			
+			<br>
+			
+			<button onclick="player(100, 10,  100, 123)">bbb</button><br>
+			<button onclick="player(100,  5,  100, 123)">bbb</button><br>
+			<button onclick="player(100,  2,  100, 123)">bbb</button><br>
+			<button onclick="player(100, 10,  100,  23)">bbb</button><br>
+			<button onclick="player(100,  5,  100,  23)">bbb</button><br>
+			<button onclick="player(100,  2,  100,  23)">bbb</button><br>
+			<button onclick="player(100, 10,   50,  23)">bbb</button><br>
+			<button onclick="player(100,  5,   50,  23)">bbb</button><br>
+			<button onclick="player(100,  2,   50,  23)">bbb</button><br>
+			<button onclick="player(100,  1, 1000,  29)">bbb</button><br>
+			
+			<br>
+			
+			<button onclick="player(100, 1, 100, 39)">100*39</button><br>
+			<button onclick="player(100, 1, 1000, 39)">1000*39</button><br>
+			<button onclick="player(100, 1, 10000, 39)">10000*39</button><br>
+			
+			<br>
+			
+			<button onclick="player(100, 1, 1000, 00)">00</button>    <button onclick="player(100, 1, 1000, 10)">10</button>    <button onclick="player(100, 1, 1000, 20)">20</button>    <button onclick="player(100, 1, 1000, 30)">30</button>    <button onclick="player(100, 1, 1000, 40)">40</button>    <button onclick="player(100, 1, 1000, 50)">50</button>    <button onclick="player(100, 1, 1000, 60)">60</button>    <button onclick="player(100, 1, 1000, 70)">70</button>    <button onclick="player(100, 1, 1000, 80)">80</button>    <button onclick="player(100, 1, 1000, 90)">90</button>     <br>
+			<button onclick="player(100, 1, 1000, 01)">01</button>    <button onclick="player(100, 1, 1000, 11)">11</button>    <button onclick="player(100, 1, 1000, 21)">21</button>    <button onclick="player(100, 1, 1000, 31)">31</button>    <button onclick="player(100, 1, 1000, 41)">41</button>    <button onclick="player(100, 1, 1000, 51)">51</button>    <button onclick="player(100, 1, 1000, 61)">61</button>    <button onclick="player(100, 1, 1000, 71)">71</button>    <button onclick="player(100, 1, 1000, 81)">81</button>    <button onclick="player(100, 1, 1000, 91)">91</button>     <br>
+			<button onclick="player(100, 1, 1000, 02)">02</button>    <button onclick="player(100, 1, 1000, 12)">12</button>    <button onclick="player(100, 1, 1000, 22)">22</button>    <button onclick="player(100, 1, 1000, 32)">32</button>    <button onclick="player(100, 1, 1000, 42)">42</button>    <button onclick="player(100, 1, 1000, 52)">52</button>    <button onclick="player(100, 1, 1000, 62)">62</button>    <button onclick="player(100, 1, 1000, 72)">72</button>    <button onclick="player(100, 1, 1000, 82)">82</button>    <button onclick="player(100, 1, 1000, 92)">92</button>     <br>
+			<button onclick="player(100, 1, 1000, 03)">03</button>    <button onclick="player(100, 1, 1000, 13)">13</button>    <button onclick="player(100, 1, 1000, 23)">23</button>    <button onclick="player(100, 1, 1000, 33)">33</button>    <button onclick="player(100, 1, 1000, 43)">43</button>    <button onclick="player(100, 1, 1000, 53)">53</button>    <button onclick="player(100, 1, 1000, 63)">63</button>    <button onclick="player(100, 1, 1000, 73)">73</button>    <button onclick="player(100, 1, 1000, 83)">83</button>    <button onclick="player(100, 1, 1000, 93)">93</button>     <br>
+			<button onclick="player(100, 1, 1000, 04)">04</button>    <button onclick="player(100, 1, 1000, 14)">14</button>    <button onclick="player(100, 1, 1000, 24)">24</button>    <button onclick="player(100, 1, 1000, 34)">34</button>    <button onclick="player(100, 1, 1000, 44)">44</button>    <button onclick="player(100, 1, 1000, 54)">54</button>    <button onclick="player(100, 1, 1000, 64)">64</button>    <button onclick="player(100, 1, 1000, 74)">74</button>    <button onclick="player(100, 1, 1000, 84)">84</button>    <button onclick="player(100, 1, 1000, 94)">94</button>     <br>
+			<button onclick="player(100, 1, 1000, 05)">05</button>    <button onclick="player(100, 1, 1000, 15)">15</button>    <button onclick="player(100, 1, 1000, 25)">25</button>    <button onclick="player(100, 1, 1000, 35)">35</button>    <button onclick="player(100, 1, 1000, 45)">45</button>    <button onclick="player(100, 1, 1000, 55)">55</button>    <button onclick="player(100, 1, 1000, 65)">65</button>    <button onclick="player(100, 1, 1000, 75)">75</button>    <button onclick="player(100, 1, 1000, 85)">85</button>    <button onclick="player(100, 1, 1000, 95)">95</button>     <br>
+			<button onclick="player(100, 1, 1000, 06)">06</button>    <button onclick="player(100, 1, 1000, 16)">16</button>    <button onclick="player(100, 1, 1000, 26)">26</button>    <button onclick="player(100, 1, 1000, 36)">36</button>    <button onclick="player(100, 1, 1000, 46)">46</button>    <button onclick="player(100, 1, 1000, 56)">56</button>    <button onclick="player(100, 1, 1000, 66)">66</button>    <button onclick="player(100, 1, 1000, 76)">76</button>    <button onclick="player(100, 1, 1000, 86)">86</button>    <button onclick="player(100, 1, 1000, 96)">96</button>     <br>
+			<button onclick="player(100, 1, 1000, 07)">07</button>    <button onclick="player(100, 1, 1000, 17)">17</button>    <button onclick="player(100, 1, 1000, 27)">27</button>    <button onclick="player(100, 1, 1000, 37)">37</button>    <button onclick="player(100, 1, 1000, 47)">47</button>    <button onclick="player(100, 1, 1000, 57)">57</button>    <button onclick="player(100, 1, 1000, 67)">67</button>    <button onclick="player(100, 1, 1000, 77)">77</button>    <button onclick="player(100, 1, 1000, 87)">87</button>    <button onclick="player(100, 1, 1000, 97)">97</button>     <br>
+			<button onclick="player(100, 1, 1000, 08)">08</button>    <button onclick="player(100, 1, 1000, 18)">18</button>    <button onclick="player(100, 1, 1000, 28)">28</button>    <button onclick="player(100, 1, 1000, 38)">38</button>    <button onclick="player(100, 1, 1000, 48)">48</button>    <button onclick="player(100, 1, 1000, 58)">58</button>    <button onclick="player(100, 1, 1000, 68)">68</button>    <button onclick="player(100, 1, 1000, 78)">78</button>    <button onclick="player(100, 1, 1000, 88)">88</button>    <button onclick="player(100, 1, 1000, 98)">98</button>     <br>
+			<button onclick="player(100, 1, 1000, 09)">09</button>    <button onclick="player(100, 1, 1000, 19)">19</button>    <button onclick="player(100, 1, 1000, 29)">29</button>    <button onclick="player(100, 1, 1000, 39)">39</button>    <button onclick="player(100, 1, 1000, 49)">49</button>    <button onclick="player(100, 1, 1000, 59)">59</button>    <button onclick="player(100, 1, 1000, 69)">69</button>    <button onclick="player(100, 1, 1000, 79)">79</button>    <button onclick="player(100, 1, 1000, 89)">89</button>    <button onclick="player(100, 1, 1000, 99)">99</button>     <br>
+			
+			<br>
+			
+			
+			<button onclick="player(100, 1, 1000, 100)">100</button>    <button onclick="player(100, 1, 1000, 110)">110</button>    <button onclick="player(100, 1, 1000, 120)">120</button>    <button onclick="player(100, 1, 1000, 130)">130</button>    <button onclick="player(100, 1, 1000, 140)">140</button>    <button onclick="player(100, 1, 1000, 150)">150</button>    <button onclick="player(100, 1, 1000, 160)">160</button>    <button onclick="player(100, 1, 1000, 170)">170</button>    <button onclick="player(100, 1, 1000, 180)">180</button>    <button onclick="player(100, 1, 1000, 190)">190</button>     <br>
+			<button onclick="player(100, 1, 1000, 101)">101</button>    <button onclick="player(100, 1, 1000, 111)">111</button>    <button onclick="player(100, 1, 1000, 121)">121</button>    <button onclick="player(100, 1, 1000, 131)">131</button>    <button onclick="player(100, 1, 1000, 141)">141</button>    <button onclick="player(100, 1, 1000, 151)">151</button>    <button onclick="player(100, 1, 1000, 161)">161</button>    <button onclick="player(100, 1, 1000, 171)">171</button>    <button onclick="player(100, 1, 1000, 181)">181</button>    <button onclick="player(100, 1, 1000, 191)">191</button>     <br>
+			<button onclick="player(100, 1, 1000, 102)">102</button>    <button onclick="player(100, 1, 1000, 112)">112</button>    <button onclick="player(100, 1, 1000, 122)">122</button>    <button onclick="player(100, 1, 1000, 132)">132</button>    <button onclick="player(100, 1, 1000, 142)">142</button>    <button onclick="player(100, 1, 1000, 152)">152</button>    <button onclick="player(100, 1, 1000, 162)">162</button>    <button onclick="player(100, 1, 1000, 172)">172</button>    <button onclick="player(100, 1, 1000, 182)">182</button>    <button onclick="player(100, 1, 1000, 192)">192</button>     <br>
+			<button onclick="player(100, 1, 1000, 103)">103</button>    <button onclick="player(100, 1, 1000, 113)">113</button>    <button onclick="player(100, 1, 1000, 123)">123</button>    <button onclick="player(100, 1, 1000, 133)">133</button>    <button onclick="player(100, 1, 1000, 143)">143</button>    <button onclick="player(100, 1, 1000, 153)">153</button>    <button onclick="player(100, 1, 1000, 163)">163</button>    <button onclick="player(100, 1, 1000, 173)">173</button>    <button onclick="player(100, 1, 1000, 183)">183</button>    <button onclick="player(100, 1, 1000, 193)">193</button>     <br>
+			<button onclick="player(100, 1, 1000, 104)">104</button>    <button onclick="player(100, 1, 1000, 114)">114</button>    <button onclick="player(100, 1, 1000, 124)">124</button>    <button onclick="player(100, 1, 1000, 134)">134</button>    <button onclick="player(100, 1, 1000, 144)">144</button>    <button onclick="player(100, 1, 1000, 154)">154</button>    <button onclick="player(100, 1, 1000, 164)">164</button>    <button onclick="player(100, 1, 1000, 174)">174</button>    <button onclick="player(100, 1, 1000, 184)">184</button>    <button onclick="player(100, 1, 1000, 194)">194</button>     <br>
+			<button onclick="player(100, 1, 1000, 105)">105</button>    <button onclick="player(100, 1, 1000, 115)">115</button>    <button onclick="player(100, 1, 1000, 125)">125</button>    <button onclick="player(100, 1, 1000, 135)">135</button>    <button onclick="player(100, 1, 1000, 145)">145</button>    <button onclick="player(100, 1, 1000, 155)">155</button>    <button onclick="player(100, 1, 1000, 165)">165</button>    <button onclick="player(100, 1, 1000, 175)">175</button>    <button onclick="player(100, 1, 1000, 185)">185</button>    <button onclick="player(100, 1, 1000, 195)">195</button>     <br>
+			<button onclick="player(100, 1, 1000, 106)">106</button>    <button onclick="player(100, 1, 1000, 116)">116</button>    <button onclick="player(100, 1, 1000, 126)">126</button>    <button onclick="player(100, 1, 1000, 136)">136</button>    <button onclick="player(100, 1, 1000, 146)">146</button>    <button onclick="player(100, 1, 1000, 156)">156</button>    <button onclick="player(100, 1, 1000, 166)">166</button>    <button onclick="player(100, 1, 1000, 176)">176</button>    <button onclick="player(100, 1, 1000, 186)">186</button>    <button onclick="player(100, 1, 1000, 196)">196</button>     <br>
+			<button onclick="player(100, 1, 1000, 107)">107</button>    <button onclick="player(100, 1, 1000, 117)">117</button>    <button onclick="player(100, 1, 1000, 127)">127</button>    <button onclick="player(100, 1, 1000, 137)">137</button>    <button onclick="player(100, 1, 1000, 147)">147</button>    <button onclick="player(100, 1, 1000, 157)">157</button>    <button onclick="player(100, 1, 1000, 167)">167</button>    <button onclick="player(100, 1, 1000, 177)">177</button>    <button onclick="player(100, 1, 1000, 187)">187</button>    <button onclick="player(100, 1, 1000, 197)">197</button>     <br>
+			<button onclick="player(100, 1, 1000, 108)">108</button>    <button onclick="player(100, 1, 1000, 118)">118</button>    <button onclick="player(100, 1, 1000, 128)">128</button>    <button onclick="player(100, 1, 1000, 138)">138</button>    <button onclick="player(100, 1, 1000, 148)">148</button>    <button onclick="player(100, 1, 1000, 158)">158</button>    <button onclick="player(100, 1, 1000, 168)">168</button>    <button onclick="player(100, 1, 1000, 178)">178</button>    <button onclick="player(100, 1, 1000, 188)">188</button>    <button onclick="player(100, 1, 1000, 198)">198</button>     <br>
+			<button onclick="player(100, 1, 1000, 109)">109</button>    <button onclick="player(100, 1, 1000, 119)">119</button>    <button onclick="player(100, 1, 1000, 129)">129</button>    <button onclick="player(100, 1, 1000, 139)">139</button>    <button onclick="player(100, 1, 1000, 149)">149</button>    <button onclick="player(100, 1, 1000, 159)">159</button>    <button onclick="player(100, 1, 1000, 169)">169</button>    <button onclick="player(100, 1, 1000, 179)">179</button>    <button onclick="player(100, 1, 1000, 189)">189</button>    <button onclick="player(100, 1, 1000, 199)">199</button>     <br>
+			
+			<br>
+					
+			<button onclick="player(100, 1, 1000, 700)">700</button>    <button onclick="player(100, 1, 1000, 710)">710</button>    <button onclick="player(100, 1, 1000, 720)">720</button>    <button onclick="player(100, 1, 1000, 730)">730</button>    <button onclick="player(100, 1, 1000, 740)">740</button>    <button onclick="player(100, 1, 1000, 750)">750</button>    <button onclick="player(100, 1, 1000, 760)">760</button>    <button onclick="player(100, 1, 1000, 770)">770</button>    <button onclick="player(100, 1, 1000, 780)">780</button>    <button onclick="player(100, 1, 1000, 790)">790</button>     <br>
+			<button onclick="player(100, 1, 1000, 701)">701</button>    <button onclick="player(100, 1, 1000, 711)">711</button>    <button onclick="player(100, 1, 1000, 721)">721</button>    <button onclick="player(100, 1, 1000, 731)">731</button>    <button onclick="player(100, 1, 1000, 741)">741</button>    <button onclick="player(100, 1, 1000, 751)">751</button>    <button onclick="player(100, 1, 1000, 761)">761</button>    <button onclick="player(100, 1, 1000, 771)">771</button>    <button onclick="player(100, 1, 1000, 781)">781</button>    <button onclick="player(100, 1, 1000, 791)">791</button>     <br>
+			<button onclick="player(100, 1, 1000, 702)">702</button>    <button onclick="player(100, 1, 1000, 712)">712</button>    <button onclick="player(100, 1, 1000, 722)">722</button>    <button onclick="player(100, 1, 1000, 732)">732</button>    <button onclick="player(100, 1, 1000, 742)">742</button>    <button onclick="player(100, 1, 1000, 752)">752</button>    <button onclick="player(100, 1, 1000, 762)">762</button>    <button onclick="player(100, 1, 1000, 772)">772</button>    <button onclick="player(100, 1, 1000, 782)">782</button>    <button onclick="player(100, 1, 1000, 792)">792</button>     <br>
+			<button onclick="player(100, 1, 1000, 703)">703</button>    <button onclick="player(100, 1, 1000, 713)">713</button>    <button onclick="player(100, 1, 1000, 723)">723</button>    <button onclick="player(100, 1, 1000, 733)">733</button>    <button onclick="player(100, 1, 1000, 743)">743</button>    <button onclick="player(100, 1, 1000, 753)">753</button>    <button onclick="player(100, 1, 1000, 763)">763</button>    <button onclick="player(100, 1, 1000, 773)">773</button>    <button onclick="player(100, 1, 1000, 783)">783</button>    <button onclick="player(100, 1, 1000, 793)">793</button>     <br>
+			<button onclick="player(100, 1, 1000, 704)">704</button>    <button onclick="player(100, 1, 1000, 714)">714</button>    <button onclick="player(100, 1, 1000, 724)">724</button>    <button onclick="player(100, 1, 1000, 734)">734</button>    <button onclick="player(100, 1, 1000, 744)">744</button>    <button onclick="player(100, 1, 1000, 754)">754</button>    <button onclick="player(100, 1, 1000, 764)">764</button>    <button onclick="player(100, 1, 1000, 774)">774</button>    <button onclick="player(100, 1, 1000, 784)">784</button>    <button onclick="player(100, 1, 1000, 794)">794</button>     <br>
+			<button onclick="player(100, 1, 1000, 705)">705</button>    <button onclick="player(100, 1, 1000, 715)">715</button>    <button onclick="player(100, 1, 1000, 725)">725</button>    <button onclick="player(100, 1, 1000, 735)">735</button>    <button onclick="player(100, 1, 1000, 745)">745</button>    <button onclick="player(100, 1, 1000, 755)">755</button>    <button onclick="player(100, 1, 1000, 765)">765</button>    <button onclick="player(100, 1, 1000, 775)">775</button>    <button onclick="player(100, 1, 1000, 785)">785</button>    <button onclick="player(100, 1, 1000, 795)">795</button>     <br>
+			<button onclick="player(100, 1, 1000, 706)">706</button>    <button onclick="player(100, 1, 1000, 716)">716</button>    <button onclick="player(100, 1, 1000, 726)">726</button>    <button onclick="player(100, 1, 1000, 736)">736</button>    <button onclick="player(100, 1, 1000, 746)">746</button>    <button onclick="player(100, 1, 1000, 756)">756</button>    <button onclick="player(100, 1, 1000, 766)">766</button>    <button onclick="player(100, 1, 1000, 776)">776</button>    <button onclick="player(100, 1, 1000, 786)">786</button>    <button onclick="player(100, 1, 1000, 796)">796</button>     <br>
+			<button onclick="player(100, 1, 1000, 707)">707</button>    <button onclick="player(100, 1, 1000, 717)">717</button>    <button onclick="player(100, 1, 1000, 727)">727</button>    <button onclick="player(100, 1, 1000, 737)">737</button>    <button onclick="player(100, 1, 1000, 747)">747</button>    <button onclick="player(100, 1, 1000, 757)">757</button>    <button onclick="player(100, 1, 1000, 767)">767</button>    <button onclick="player(100, 1, 1000, 777)">777</button>    <button onclick="player(100, 1, 1000, 787)">787</button>    <button onclick="player(100, 1, 1000, 797)">797</button>     <br>
+			<button onclick="player(100, 1, 1000, 708)">708</button>    <button onclick="player(100, 1, 1000, 718)">718</button>    <button onclick="player(100, 1, 1000, 728)">728</button>    <button onclick="player(100, 1, 1000, 738)">738</button>    <button onclick="player(100, 1, 1000, 748)">748</button>    <button onclick="player(100, 1, 1000, 758)">758</button>    <button onclick="player(100, 1, 1000, 768)">768</button>    <button onclick="player(100, 1, 1000, 778)">778</button>    <button onclick="player(100, 1, 1000, 788)">788</button>    <button onclick="player(100, 1, 1000, 798)">798</button>     <br>
+			<button onclick="player(100, 1, 1000, 709)">709</button>    <button onclick="player(100, 1, 1000, 719)">719</button>    <button onclick="player(100, 1, 1000, 729)">729</button>    <button onclick="player(100, 1, 1000, 739)">739</button>    <button onclick="player(100, 1, 1000, 749)">749</button>    <button onclick="player(100, 1, 1000, 759)">759</button>    <button onclick="player(100, 1, 1000, 769)">769</button>    <button onclick="player(100, 1, 1000, 779)">779</button>    <button onclick="player(100, 1, 1000, 789)">789</button>    <button onclick="player(100, 1, 1000, 799)">799</button>     <br>
+		
+		</div>
+		
+	</body>
+	
+	
+</html>
+
